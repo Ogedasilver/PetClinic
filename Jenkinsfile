@@ -1,5 +1,5 @@
 node {
-    def mvnHome = tool name: 'Maven_3', type: 'maven'
+    def mvnHome = tool name: 'Maven3.9.2', type: 'maven'
     def mvnCli = "${mvnHome}/bin/mvn"
 
     properties([
@@ -11,14 +11,14 @@ node {
         parameters([string(defaultValue: 'DEV', description: 'env name', name: 'environment', trim: false)])
     ])
     stage('Checkout SCM'){
-        git branch: 'master', credentialsId: 'github-creds', url: 'https://github.com/gouthamchilakala/PetClinic'
+        git 'https://github.com/Ogedasilver/PetClinic.git'
     }
     stage('Read praram'){
         echo "The environment chosen during the Job execution is ${params.environment}"
         echo "$JENKINS_URL"
     }
     stage('maven compile'){
-        // def mvnHome = tool name: 'Maven_3.6', type: 'maven'
+        // def mvnHome = tool name: 'Maven_3.9.2', type: 'maven'
         // def mvnCli = "${mvnHome}/bin/mvn"
         sh "${mvnCli} clean compile"
     }
@@ -33,12 +33,8 @@ node {
     }
     stage('Deploy To Tomcat'){
         sshagent(['app-server']) {
-            sh 'scp -o StrictHostKeyChecking=no target/*.war ec2-user@ec2-52-70-39-48.compute-1.amazonaws.com:/opt/apache-tomcat-8.5.38/webapps/'
+            deploy adapters: [tomcat9(credentialsId: 'jenkins-tomcat', path: '', url: 'http://54.210.74.225:8009/')], contextPath: 'oge', war: 'target/*.war'
         }
     }
-    stage('Smoke Test'){
-        sleep 5
-        sh "curl ec2-52-70-39-48.compute-1.amazonaws.com:8080/petclinic"
-    }
-
+    
 }
