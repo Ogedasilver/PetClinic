@@ -1,6 +1,6 @@
 node {
-    def mvnHome = tool name: 'Maven3.9.2', type: 'maven'
-    def mvnCli = "${mvnHome}/bin/mvn"
+    def mvnHome = tool name: 'Maven3.9.2'
+    def mvnCli = "${mavenHome}/bin/mvn"
 
     properties([
         buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')),
@@ -18,12 +18,12 @@ node {
         echo "$JENKINS_URL"
     }
     stage('maven compile'){
-        // def mvnHome = tool name: 'Maven_3.9.2', type: 'maven'
+        // def mvnHome = tool name: 'Maven_3.9.2'
         // def mvnCli = "${mvnHome}/bin/mvn"
-        sh "${mvnCli} clean compile"
+        sh "${mavenHome} clean compile"
     }
     stage('maven package'){
-        sh "${mvnCli} package -Dmaven.test.skip=true"
+        sh "${mavenHome} package -Dmaven.test.skip=true"
     }
     stage('Archive atifacts'){
         archiveArtifacts artifacts: '**/*.war', onlyIfSuccessful: true
